@@ -1,0 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Hubot+Sans:ital,wght@0,200..900;1,200..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Victor+Mono:ital,wght@0,100..700;1,100..700&family=Zen+Dots&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hubot+Sans:ital,wght@0,200..900;1,200..900&family=Iceland&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Victor+Mono:ital,wght@0,100..700;1,100..700&family=Zen+Dots&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Kind-Sans";
+  src: url("./gilmer.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Origin-Tech";
+  src: url("./Origin.otf") format("opentype");
+}
