@@ -61,7 +61,7 @@ const ContactUs = () => {
           <Linkedin />
         </a>
       </div>
-      <div className="font-o text-6xl py-3"> Thunder Streams</div>
+      <div className="font-[Origin-Tech] text-6xl py-3"> Thunder Streams</div>
     </div>
   );
 };

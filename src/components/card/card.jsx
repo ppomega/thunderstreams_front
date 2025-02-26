@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 function Card() {
   return (
-    <motion.div className="h-1/3 max-w-md border-2 border-black rounded-lg hover:border-gray-400">
+    <motion.div className=" max-w-md  border-2  border-black  rounded-lg hover:border-gray-400">
       <motion.img
         className="h-full w-full rounded-md"
         src={require("./card.webp")}

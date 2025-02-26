@@ -10,7 +10,7 @@ function Image(props) {
 
     let config = {
       method: "GET",
-      url: `${process.env.REACT_APP_API_URL}/animeInfo?name=${name}`,
+      url: `${import.meta.env.VITE_APP_API_URL}/animeInfo?name=${name}`,
     };
     const list = await axios.request(config);
     return list.data;
@@ -36,7 +36,7 @@ function Image(props) {
               style={{
                 backgroundImage:
                   "url(" +
-                  `${process.env.REACT_APP_API_URL}/file?name=` +
+                  `${import.meta.env.VITE_APP_API_URL}/file?name=` +
                   props.logo +
                   ")",
               }}
@@ -69,7 +69,7 @@ function Image(props) {
       )}
       {!loaded && (
         <div className="absolute top-0 right-0 animate-pulse w-11/12 h-100 rounded-2xl mx-16">
-          <div className="w-full h-100 bg-gray-700 rounded-2xl  bg-opacity-35"></div>
+          <div className="w-full h-100 bg-pink-900/55 rounded-2xl  bg-opacity-35"></div>
         </div>
       )}
     </div>

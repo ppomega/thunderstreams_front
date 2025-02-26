@@ -9,12 +9,14 @@ function NavCard(props) {
 
     let config = {
       method: "GET",
-      url: `${process.env.REACT_APP_API_URL}/animeInfo?name=${name}`,
+      url: `${import.meta.env.VITE_APP_API_URL}/animeInfo?name=${name}`,
     };
     const list = await axios.request(config);
     return list.data;
   }
-  const imageUrl = `${process.env.REACT_APP_API_URL}/file?name=${props.slide.thumbnail1}`;
+  const imageUrl = `${import.meta.env.VITE_APP_API_URL}/file?name=${
+    props.slide.thumbnail1
+  }`;
   return (
     <div>
       <div

@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 function SideView(props) {
-  const imageUrl = `${process.env.REACT_APP_API_URL}/file?name=${props.thumb}`;
+  const imageUrl = `${import.meta.env.VITE_APP_API_URL}/file?name=${
+    props.thumb
+  }`;
   const [selected, Select] = useState(props.k);
-  console.log(props);
   return (
     <div className="w-1/3 bg-transparent  font-g text-white  flex-row overflow-y-hidden">
       {props.data.map((i, k) => (
@@ -16,7 +17,7 @@ function SideView(props) {
             }}
           >
             {selected == k ? (
-              <div className="w-full absolute top-0 left-0 h-full rounded-lg bg-opacity-15 bg-white" />
+              <div className="w-full absolute top-0 left-0 h-full rounded-lg  bg-white/15 " />
             ) : (
               <></>
             )}
@@ -48,9 +49,9 @@ function SideView(props) {
                 </g>
               </svg>
             </div>
-            <div className="w-3/4 rounded-lg h-18 px-6 text-white bg-pink-600 bg-opacity-10">
+            <div className="w-3/4 rounded-lg h-18 px-6 text-white bg-pink-600/10 ">
               {i.title}
-              <h1 className="text-sm font-g text-gray-400">{i.description}</h1>
+              <h1 className="text-xs font-g text-gray-400">{i.description}</h1>
             </div>
           </div>
         </>

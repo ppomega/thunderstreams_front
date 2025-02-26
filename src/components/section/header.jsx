@@ -1,5 +1,4 @@
 function Header(props) {
-  console.log(props);
   return (
     <div className=" w-full ">
       <h1 className="font-a text-4xl text-white font-extrabold absolute top-36 px-8">

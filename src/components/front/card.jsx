@@ -6,29 +6,15 @@ import { useNavigate } from "react-router-dom";
 function Card(props) {
   const navigate = useNavigate();
 
-  async function Fetch(name) {
-    name = name.replaceAll(" ", "_");
-    name = name.replaceAll("-", "_");
-    name = name.replaceAll(":", "_");
-
-    let config = {
-      method: "GET",
-      url: `${process.env.REACT_APP_API_URL}/animeInfo?name=${name}`,
-    };
-    const list = await axios.request(config);
-    return list.data;
-  }
   const [v, setView] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   return (
     <div
-      className="w-11/12 "
+      className="w-11/12 h-44 "
       onClick={async () => {
-        const c = await Fetch(props.slide.name);
-        console.log(c);
         navigate("/series", {
-          state: { info1: props.slide, info2: c, assets: props.assets },
+          state: { info1: props.slide, assets: props.assets },
         });
       }}
       onMouseEnter={() => {
@@ -40,7 +26,8 @@ function Card(props) {
     >
       <img
         src={
-          `${process.env.REACT_APP_API_URL}/file?name=` + props.slide.thumbnail1
+          `${import.meta.env.VITE_APP_API_URL}/file?name=` +
+          props.slide.thumbnail1
         }
         className=" w-64 rounded-xl"
         onLoad={() => setLoaded(true)}
@@ -48,7 +35,7 @@ function Card(props) {
       ></img>
       {!loaded && (
         <div className="absolute w-64 h-full top-0 left-0 animate-pulse rounded-2xl ">
-          <div className="bg-gray-700 w-64 h-full rounded-2xl  bg-opacity-35"></div>
+          <div className="bg-pink-700/35 w-64 h-full rounded-2xl"></div>
         </div>
       )}
       {v ? (

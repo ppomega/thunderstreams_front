@@ -1,18 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useAnimate } from "framer-motion";
-import Options from "./options";
-import dashjs from "dashjs";
-import Loader from "./loader";
+import Options from "./options.jsx";
+import * as dashjs from "dashjs";
+import Loader from "./loader.jsx";
 const Player = (props) => {
   const [visible, setVisibility] = useState(false);
   const [loader, isLoading] = useState(false);
-  // useEffect(() => {
-  //   if (loader) {
-  //     console.log("loader true");
-  //   } else {
-  //     console.log("samajh ja");
-  //   }
-  // }, [loader]);
   const [duration, setDuration] = useState(null);
   const [playhead, animate] = useAnimate();
   const [clickPosition, setClickPosition] = useState(0);
@@ -22,20 +15,20 @@ const Player = (props) => {
   const dis = useRef(null);
   const [pos, setPos] = useState(0);
   const [qualityLevels, setQ] = useState([]);
-  var select = useRef();
+  const select = useRef();
   useEffect(() => {
     if (videoRef.current) {
       const videoElement = videoRef.current;
+
       const dashPlayer = dashjs.MediaPlayer().create();
       select.current = dashPlayer;
-
       dashPlayer.initialize(
         videoElement,
-        `${process.env.REACT_APP_API_URL}/${props.path}output.mpd`,
+        `${import.meta.env.VITE_APP_API_URL}/${props.path}output.mpd`,
         true
       );
       dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-        setQ(dashPlayer.getBitrateInfoListFor("video"));
+        setQ(dashPlayer.getTracksFor("video")[0].bitrateList);
       });
       dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_SEEKING, function (e) {
         isLoading(true);
@@ -106,7 +99,7 @@ const Player = (props) => {
   };
   const slider = useRef(null);
   const vref = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [display, setDisplay] = useState(false);
   const togglePlay = () => {
@@ -125,7 +118,6 @@ const Player = (props) => {
   }
   function Playhead(e) {
     setPos(e.clientX);
-    console.log(e.clientX);
   }
   const handleVolumeChange = (e) => {
     const newVolume = e.target.value;
@@ -174,7 +166,7 @@ const Player = (props) => {
             onClick={() => {
               togglePlay();
             }}
-            className="absolute top-0 left-0 bottom-0 right-0 h-full rounded-sm bg-black bg-opacity-45"
+            className="absolute top-0 left-0 bottom-0 right-0 h-full rounded-sm bg-black/45 "
           >
             <h1 className="w-full text-2xl font-semibold mx-6 my-4 text-white absolute top-0 left-0">
               {props.info1.title}
@@ -214,7 +206,7 @@ const Player = (props) => {
 
             {!isPlaying ? (
               <svg
-                style={{ position: "absolute", top: "250px", left: "480px" }}
+                style={{ position: "absolute", top: "50%", left: "50%" }}
                 width="50px"
                 height="50px"
                 viewBox="0 0 24 24"
@@ -237,7 +229,7 @@ const Player = (props) => {
               </svg>
             ) : (
               <svg
-                style={{ position: "absolute", top: "250px", left: "480px" }}
+                style={{ position: "absolute", top: "50%", left: "50%" }}
                 width="50px"
                 height="50px"
                 viewBox="0 0 24 24"

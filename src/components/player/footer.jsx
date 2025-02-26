@@ -1,7 +1,5 @@
-import Carousel from "../front/carousel";
-
+import Carousel from "../front/carousel.jsx";
 function Footer(props) {
-  console.log(props);
   return (
     <div>
       <h1 className="text-white font-g mx-8 text-3xl ">More Like this</h1>

@@ -20,7 +20,8 @@ const Slider = (props) => {
       className="w-full"
     >
       {props.data.map((slide) => {
-        const path = `${process.env.REACT_APP_API_URL}/file?name=` + slide.thumbnail1;
+        const path =
+          `${import.meta.env.VITE_APP_API_URL}/file?name=` + slide.thumbnail1;
         return (
           <SwiperSlide key={slide._id}>
             <Image

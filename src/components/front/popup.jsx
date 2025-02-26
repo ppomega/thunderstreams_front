@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import NavCard from "./navcard";
+import NavCard from "./navcard.jsx";
 function PopUp(props) {
   const [results, setResult] = useState([]);
   useEffect(() => {
@@ -30,7 +30,7 @@ function PopUp(props) {
           e.stopPropagation();
           props.g(true);
         }}
-        className="w-3/4  text-white bg-opacity-30 bg-pink-700 rounded-lg sticky z-40 top-24 left-52 flex justify-around flex-wrap overflow-y-auto"
+        className="w-3/4  text-white bg-pink-700/30 rounded-lg sticky z-40 top-24 left-52 flex justify-around flex-wrap overflow-y-auto"
       >
         {results != null ? (
           results.map((i) => {

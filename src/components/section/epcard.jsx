@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router";
 function EpCard(props) {
-  const imageUrl = `${process.env.REACT_APP_API_URL}/file?name=${props.data1}`;
+  const imageUrl = `${import.meta.env.VITE_APP_API_URL}/file?name=${
+    props.data1
+  }`;
   const navigate = useNavigate();
-  console.log(props);
   return (
     <>
       <div
@@ -27,7 +28,7 @@ function EpCard(props) {
           }}
           className="absolute border-2 border-pink-400 top-0 bg-cover left-0 mx-12 w-52 backdrop-blur-sm h-32  rounded-lg "
         ></div>
-        <div className="bg-black  absolute top-0 left-0 mx-12 w-52 h-32 rounded-lg bg-opacity-50"></div>
+        <div className="bg-black/50  absolute top-0 left-0 mx-12 w-52 h-32 rounded-lg "></div>
         <svg
           fill="#ffffff"
           viewBox="0 0 32 32"

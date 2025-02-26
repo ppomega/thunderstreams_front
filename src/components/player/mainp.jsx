@@ -1,11 +1,10 @@
-import Player from "./player";
-import Footer from "./footer";
-import SideView from "./sideview";
+import Player from "./player.jsx";
+import Footer from "./footer.jsx";
+import SideView from "./sideview.jsx";
 import { useLocation } from "react-router";
 import { useState } from "react";
 function MainP() {
   const c = useLocation();
-  console.log(c);
   const [path, setPath] = useState(c.state.info1.path);
   return (
     <div className="w-full h-1/3 flex-row ">
