@@ -1,8 +1,19 @@
-# React + Vite
+# Thunder Streams
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+It is an Anime Streaming Platform built in MERN Stack and consists of collection of latest anime shows and series from various genres.This repository consists of the source code of frontend or UI part of the application built using React.
 
-Currently, two official plugins are available:
+The application is functional and can be viewed [ThunderStreams](https://thunderstreams-front.pages.dev)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Currently,This part of the app is deployed on **Cloudflare Pages**
+
+The Backend repository is [here](https://github.com/ppomega/thunderstreams_back) along with complete architecture and logic.
+
+# Image Previews
+
+![Image1](i1.png)
+![Image2](i2.png)
+![Image3](i3.png)
+
+Any suggestions and contributions are welcomed.
+
+**Note:-This app is not made for sales or commercial activites.It is just an implementation of Dash Streaming protocol and other concepts used in Web Development for VOD(Video on demand).**
