@@ -91,7 +91,7 @@ function Nav(props) {
         placeholder="Search"
       ></input>
 
-      <div className="font-o text-3xl py-3"> Thunder
+      <div className="font-o text-3xl py-3 flex flex-col"> Thunder
       <div className="font-o text-3xl  text-yellow-300">  Streams</div></div>
       <div
         onClick={() => {
