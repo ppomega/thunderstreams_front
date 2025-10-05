@@ -91,8 +91,11 @@ function Nav(props) {
         placeholder="Search"
       ></input>
 
-      <div className="font-o text-3xl py-3 flex flex-col w-auto"> Thunder
-      <div className="text-yellow-300">  Streams</div></div>
+      <div className="font-o text-2xl py-3 flex  w-60">
+        {" "}
+        <div className="w-1/2">Thunder</div>
+        <div className="text-yellow-300 w-1/2"> Streams</div>
+      </div>
       <div
         onClick={() => {
           navigate("/aboutus");
