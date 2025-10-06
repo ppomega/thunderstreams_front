@@ -6,13 +6,14 @@ function SideView(props) {
   }`;
   const [selected, Select] = useState(props.k);
   return (
-    <div className="w-1/3 bg-transparent  font-g text-white  flex-row overflow-y-hidden">
+    <div className="w-1/3 bg-transparent h-96 relative top-0 left-0 font-g text-white flex-row overflow-y-scroll ">
       {props.data.map((i, k) => (
         <>
           <div
             className="w-full rounded-xl relative top-0 left-0 flex py-1"
             onClick={() => {
               props.setPath(i.path);
+              props.setInfo1(i);
               Select(k);
             }}
           >
