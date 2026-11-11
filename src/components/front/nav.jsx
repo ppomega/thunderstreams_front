@@ -1,110 +1,56 @@
 import { useNavigate } from "react-router";
+import { Moon, Sun } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 function Nav(props) {
   const navigate = useNavigate();
-  function SubStr(str_1, str_2) {
-    var f = 0;
-    var a = 0;
-    var y = false;
-    var h = true;
-    var str1 = str_1?.toLowerCase().trim().split(" ").join("");
-    var str2 = str_2?.toLowerCase().trim().split(" ").join("");
-    for (var i = 0; i <= str1?.length - 1; i++) {
-      for (var j = a; j <= str2?.length - 1; j++) {
-        if (h) {
-          if (str1[i] == str2[j]) {
-            a = j + 1;
-            f += 1;
-            y = true;
-            h = false;
-            break;
-          }
-        } else if (y) {
-          if (str1[i] == str2[j]) {
-            f += 1;
-            a = j + 1;
-            break;
-          } else {
-            y = false;
-            break;
-          }
-        }
-      }
-
-      if (!y) {
-        break;
-      }
-    }
-    if (f == str1?.length) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  async function Collt(st1, datas) {
-    var result = [null];
-    var t = 0;
-    while (t < datas.length) {
-      if (SubStr(st1, datas[t].name)) {
-        result.push(datas[t]);
-      }
-      t++;
-    }
-
-    return result;
-  }
-
-  async function query(q) {
-    const r = await Collt(q, props.assets);
-    r.shift();
-    props.setResults(r);
+  const searchTimer = useRef();
+  useEffect(() => () => clearTimeout(searchTimer.current), []);
+  function query(q) {
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      const term = q.toLocaleLowerCase().trim().replace(/\s+/g, "");
+      props.setResults(term ? props.assets.filter((asset) =>
+        asset.name?.toLocaleLowerCase().replace(/\s+/g, "").includes(term)
+      ) : []);
+    }, 120);
   }
   return (
-    <div className="bg-bubble2 bg-opacity-50 w-full  text-white  backdrop-blur-lg sticky top-0 flex justify-evenly h-12 font-g z-50">
-      <div
-        className="py-1"
-        onClick={() => {
-          navigate("/");
-        }}
-      >
-        Home
-      </div>
-      <div
-        className="py-1"
-        onClick={() => {
-          navigate("/anime");
-        }}
-      >
-        Animes
-      </div>
+    <nav className="app-nav sticky top-0 z-50 w-full font-g">
+      <div className="app-nav-inner">
+        <button type="button" className="nav-link" onClick={() => navigate("/")}>
+          Home
+        </button>
+        <button type="button" className="nav-link" onClick={() => navigate("/anime")}>
+          Anime
+        </button>
 
-      <input
-        id="l"
-        onChange={async (e) => {
-          await query(e.target.value);
-        }}
-        onFocus={() => {
-          props.g(true);
-        }}
-        className="h-7 bg-bubb bg-opacity-65 px-5 my-1 text-md text-white w-96  rounded-md"
-        placeholder="Search"
-      ></input>
+        <input
+          id="l"
+          onChange={(e) => query(e.target.value)}
+          onFocus={() => props.g(true)}
+          className="nav-search h-10 bg-bubb bg-opacity-65 px-4 text-base text-white rounded-lg"
+          placeholder="Search titles"
+          aria-label="Search titles"
+        />
 
-      <div className="font-o text-2xl py-3 flex  w-60">
-        {" "}
-        <div className="w-1/2">Thunder</div>
-        <div className="text-yellow-300 w-1/2"> Streams</div>
+        <div className="nav-brand font-o" aria-label="Thunder Streams">
+          <span>Thunder</span><span className="text-yellow-300">Streams</span>
+        </div>
+        <button type="button" className="nav-link" onClick={() => navigate("/aboutus")}>
+          About Us
+        </button>
+        <button
+          type="button"
+          onClick={props.toggleTheme}
+          className="theme-toggle"
+          aria-label={`Switch to ${props.theme === "dark" ? "light" : "dark"} theme`}
+          title={`Switch to ${props.theme === "dark" ? "light" : "dark"} theme`}
+        >
+          {props.theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
       </div>
-      <div
-        onClick={() => {
-          navigate("/aboutus");
-        }}
-        className="py-1"
-      >
-        About Us
-      </div>
-    </div>
+    </nav>
   );
 }
 export default Nav;

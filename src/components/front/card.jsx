@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Card(props) {
@@ -11,7 +10,7 @@ function Card(props) {
 
   return (
     <div
-      className="w-11/12 h-44 "
+      className="carousel-card w-11/12 h-40 relative"
       onClick={async () => {
         navigate("/series", {
           state: { info1: props.slide, assets: props.assets },
@@ -29,9 +28,12 @@ function Card(props) {
           `${import.meta.env.VITE_APP_API_URL}/file?name=` +
           props.slide.thumbnail1
         }
-        className=" w-64 rounded-xl"
+        className=" w-64 rounded-xl h-full"
+        loading="lazy"
+        decoding="async"
+        alt={props.slide.name || ""}
         onLoad={() => setLoaded(true)}
-        style={{ opacity: loaded ? 100 : 0 }}
+        style={{ opacity: loaded ? 1 : 0 }}
       ></img>
       {!loaded && (
         <div className="absolute w-64 h-full top-0 left-0 animate-pulse rounded-2xl ">
@@ -42,14 +44,14 @@ function Card(props) {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="bg-black bg-opacity-75 w-64 font-extrabold h-full rounded-xl  text-white font-g text-md px-10 absolute top-0 left-0"
+          className="carousel-card-overlay w-64 font-bold h-40 rounded-2xl font-g text-xl px-5 flex items-center justify-center text-center absolute inset-0"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", color: "#fff" }}
         >
-          {props.slide.description}
+          {props.slide.name}
         </motion.div>
       ) : (
         <></>
       )}
-      <div className="text-white font-g">{props.slide.name}</div>
     </div>
   );
 }

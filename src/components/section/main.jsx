@@ -31,11 +31,9 @@ function Main(props) {
 
   return (
     <div
-      className="min-w-full min-h-screen bg-cover"
+      className="series-page min-w-full min-h-screen bg-cover"
       style={{
-        backgroundImage: `url(
-        ${imageUrl}
-          )`,
+        backgroundImage: `linear-gradient(var(--series-overlay), var(--series-overlay)), url(${imageUrl})`,
       }}
     >
       <Header

@@ -1,385 +1,281 @@
-import { useRef, useState, useEffect, use } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import Options from "./options.jsx";
+import { Maximize, Minimize, Pause, Play, Settings, Volume2, VolumeX } from "lucide-react";
 import * as dashjs from "dashjs";
 import Loader from "./loader.jsx";
+import Options from "./options.jsx";
 import "./player.css";
-const Player = (props) => {
-  const vref = useRef(null);
+
+function formatTime(value) {
+  if (!Number.isFinite(value) || value < 0) return "00:00";
+  const seconds = Math.floor(value);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainder = seconds % 60;
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`
+    : `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+}
+
+function Player(props) {
+  const containerRef = useRef(null);
+  const videoRef = useRef(null);
+  const dashRef = useRef(null);
+  const displayTimeout = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [lastVolume, setLastVolume] = useState(1);
   const [display, setDisplay] = useState(false);
-  const [playback_time, setPbt] = useState("00:00:00");
-  const [playback_duration, setPbd] = useState("00:00:00");
-  const [loader, isLoading] = useState(false);
-  const [duration, setDuration] = useState(null);
-  const [options, showOptions] = useState(false);
-  const [value, setValue] = useState(0);
-  const videoRef = useRef(null);
-  const dis = useRef(null);
-  const [qualityLevels, setQ] = useState([]);
-  const select = useRef();
-  const slider = useRef(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [loader, setLoader] = useState(true);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [qualityLevels, setQualityLevels] = useState([]);
+  const [audioTracks, setAudioTracks] = useState([]);
+  const [activeAudioTrack, setActiveAudioTrack] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  function time() {}
   useEffect(() => {
-    if (videoRef.current) {
-      const videoElement = videoRef.current;
+    const video = videoRef.current;
+    if (!video) return undefined;
 
-      const dashPlayer = dashjs.MediaPlayer().create();
-      select.current = dashPlayer;
-      dashPlayer.initialize(
-        videoElement,
-        `${import.meta.env.VITE_APP_API_URL}/${props.path}output.mpd`,
-        true
+    const dashPlayer = dashjs.MediaPlayer().create();
+    dashRef.current = dashPlayer;
+    setLoader(true);
+    setQualityLevels([]);
+    setAudioTracks([]);
+    setActiveAudioTrack(0);
+    dashPlayer.initialize(video, `${import.meta.env.VITE_APP_API_URL}/${props.path}output.mpd`, true);
+    dashPlayer.updateSettings({
+      debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE },
+      streaming: { abr: { autoSwitchBitrate: { video: false } } },
+    });
+
+    const onStreamInitialized = () => {
+      const videoTracks = dashPlayer.getTracksFor("video") || [];
+      const availableAudio = dashPlayer.getTracksFor("audio") || [];
+      const currentAudio = dashPlayer.getCurrentTrackFor("audio");
+      const currentIndex = availableAudio.findIndex((track) =>
+        currentAudio?.id != null ? track.id === currentAudio.id : track === currentAudio
       );
-      if (dashPlayer.isDynamic()) {
-        const windowSize = dashPlayer.getDVRWindowSize();
-        const liveEdge = dashPlayer.duration();
-        const windowStart = liveEdge - windowSize;
-        console.log(windowSize);
-        console.log(liveEdge);
-        console.log(windowStart);
-        slider.min = windowStart;
-        slider.max = liveEdge;
-        slider.value = dashPlayer.time();
-      }
+      setQualityLevels(videoTracks[0]?.bitrateList || []);
+      setAudioTracks(availableAudio);
+      setActiveAudioTrack(currentIndex >= 0 ? currentIndex : 0);
+      setDuration(Number.isFinite(video.duration) ? video.duration : dashPlayer.duration() || 0);
+      setLoader(false);
+    };
+    const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime || 0);
+      if (Number.isFinite(video.duration)) setDuration(video.duration);
+    };
+    const onWaiting = () => setLoader(true);
+    const onCanPlay = () => setLoader(false);
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
 
-      dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-        setPbd(
-          new Date(dashPlayer.duration() * 1000).toISOString().slice(11, 19)
-        );
-        console.log(dashPlayer.getTracksFor("video")[0].bitrateList);
-        setQ(dashPlayer.getTracksFor("video")[0].bitrateList);
-      });
-      dashPlayer.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => {
-        isLoading(false);
-      });
-      dashPlayer.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, () => {
-        isLoading(true);
-      });
-      dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_TIME_UPDATED, () => {
-        setPbt(new Date(dashPlayer.time() * 1000).toISOString().slice(11, 19));
-        setPbd(
-          new Date(dashPlayer.duration() * 1000).toISOString().slice(11, 19)
-        );
-      });
+    dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, onStreamInitialized);
+    dashPlayer.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, onWaiting);
+    dashPlayer.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_RENDERED, onCanPlay);
+    dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_SEEKING, onWaiting);
+    dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_SEEKED, onCanPlay);
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
 
-      dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_SEEKING, function (e) {
-        isLoading(true);
-      });
-      dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_SEEKED, function (e) {
-        isLoading(false);
-      });
-
-      dashPlayer.updateSettings({
-        debug: {
-          logLevel: dashjs.Debug.LOG_LEVEL_NONE, // Disable logging
-        },
-        streaming: {
-          abr: {
-            autoSwitchBitrate: { video: false },
-          },
-        },
-      });
-
-      dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_PAUSED, function () {
-        setIsPlaying(false);
-      });
-      dashPlayer.on(dashjs.MediaPlayer.events.PLAYBACK_PLAYING, function () {
-        setIsPlaying(true);
-      });
-      const handleMetadataLoaded = async () => {
-        setDuration(dashPlayer.duration());
-      };
-      videoRef.current.addEventListener("pause", () => {
-        const progress =
-          (videoElement.currentTime / dashPlayer.duration()) * 100;
-        setValue(progress);
-      });
-      videoRef.current.addEventListener("timeupdate", () => {
-        if (slider.current) {
-          const progress =
-            (videoElement.currentTime / dashPlayer.duration()) * 100;
-          setValue(progress);
-        }
-      });
-      videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
-      return () => {
-        videoElement.removeEventListener(
-          "loadedmetadata",
-          handleMetadataLoaded
-        );
-      };
-    }
+    return () => {
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+      dashPlayer.reset();
+      if (dashRef.current === dashPlayer) dashRef.current = null;
+    };
   }, [props.path]);
+
+  useEffect(() => () => clearTimeout(displayTimeout.current), []);
+
   useEffect(() => {
-    if (slider.current) {
-      slider.current.addEventListener("input", function () {
-        const val = ((this.value - this.min) / (this.max - this.min)) * 100;
-        this.style.background = `linear-gradient(to right, #2196f3 ${val}%, #ccc ${val}%)`;
-      });
-    }
-  }, [display]);
+    const onFullscreenChange = () => {
+      const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+      setIsFullscreen(fullscreenElement === containerRef.current);
+      setDisplay(true);
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
+    };
+  }, []);
 
-  const handleClick = () => {
-    const val = slider.current.value;
-
-    videoRef.current.currentTime = (duration * val) / 100;
+  const showControls = () => {
+    setDisplay(true);
+    clearTimeout(displayTimeout.current);
+    displayTimeout.current = setTimeout(() => setDisplay(false), 4000);
   };
 
   const togglePlay = () => {
-    if (!videoRef.current.paused) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) video.play().catch(() => {});
+    else video.pause();
+  };
+
+  const seek = (event) => {
+    const nextTime = (Number(event.target.value) / 100) * duration;
+    if (videoRef.current && Number.isFinite(nextTime)) {
+      videoRef.current.currentTime = nextTime;
+      setCurrentTime(nextTime);
     }
   };
 
-  function Display() {
-    setDisplay(true);
-    setTimeout(() => {
-      setDisplay(false);
-    }, 4000);
-  }
-
-  const handleVolumeChange = (e) => {
-    const newVolume = e.target.value;
-    videoRef.current.volume = newVolume;
-    setVolume(newVolume);
+  const changeVolume = (event) => {
+    const nextVolume = Number(event.target.value);
+    if (!videoRef.current) return;
+    videoRef.current.volume = nextVolume;
+    videoRef.current.muted = nextVolume === 0;
+    setVolume(nextVolume);
+    if (nextVolume > 0) setLastVolume(nextVolume);
   };
-  function option(e) {
-    e.preventDefault();
-    showOptions(!options);
-  }
-  const enterFullscreen = () => {
-    if (vref.current.requestFullscreen) {
-      vref.current.requestFullscreen();
-    } else if (vref.current.webkitRequestFullscreen) {
-      vref.current.webkitRequestFullscreen();
-    } else if (vref.current.mozRequestFullScreen) {
-      vref.current.mozRequestFullScreen();
-    } else if (vref.current.msRequestFullscreen) {
-      vref.current.msRequestFullscreen();
+
+  const toggleMute = (event) => {
+    event.stopPropagation();
+    const nextVolume = volume > 0 ? 0 : lastVolume || 1;
+    if (volume > 0) setLastVolume(volume);
+    if (videoRef.current) {
+      videoRef.current.muted = nextVolume === 0;
+      videoRef.current.volume = nextVolume;
+    }
+    setVolume(nextVolume);
+  };
+
+  const toggleFullscreen = async (event) => {
+    event.stopPropagation();
+    try {
+      if (document.fullscreenElement === containerRef.current) {
+        await document.exitFullscreen();
+      } else if (containerRef.current?.requestFullscreen) {
+        await containerRef.current.requestFullscreen();
+      } else if (containerRef.current?.webkitRequestFullscreen) {
+        containerRef.current.webkitRequestFullscreen();
+      }
+    } catch {
+      // Fullscreen may be unavailable or denied by the browser.
     }
   };
 
   return (
-    <div className="w-2/3 h-full ">
-      {" "}
-      <div className="w-full h-full px-3 py-3">
+    <div className="player-frame">
+      <div className="player-video-wrap">
         <div
-          className="h-4/5 w-4/5  relative top-0 left-1/12  rounded-md border-[1px] border-gray-700"
-          ref={vref}
+          className="player-video-shell relative rounded-md border border-gray-700"
+          ref={containerRef}
+          onPointerMove={showControls}
+          onMouseLeave={() => setDisplay(false)}
         >
-          {" "}
           <video
-            onMouseMove={() => {
-              Display();
-            }}
-            onClick={() => {
-              Display();
-              togglePlay();
-            }}
             ref={videoRef}
-            className=" w-full h-full relative top-0 left-0 rounded-md shadow-md bg-black"
+            onClick={() => { showControls(); togglePlay(); }}
+            className="w-full h-full rounded-md shadow-md bg-black"
+            playsInline
           />
-          {loader ? <Loader /> : <></>}
-          {display ? (
+          {loader && <Loader />}
+          {display && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.2 }}
-              ref={dis}
-              onClick={() => {
-                togglePlay();
-              }}
-              className="h-full absolute w-full top-0 left-0 bottom-0 right-0  rounded-sm bg-black/45 "
+              className="player-control-overlay"
+              onClick={togglePlay}
             >
-              <h1 className="w-full text-sm font-metaluna mx-6 my-4 text-white absolute top-0 left-0">
-                {props.info1.title}
-              </h1>
-              <div className="absolute bottom-18 left-3 text-white text-xs font-bunken">
-                {playback_time}
-              </div>
-              <div className="absolute bottom-18 right-3 text-white text-xs font-bunken">
-                {playback_duration}
+              <div className="player-video-title">{props.info1.title}</div>
+              {!isPlaying && (
+                <button
+                  type="button"
+                  className="player-center-play"
+                  aria-label="Play"
+                  onClick={(event) => { event.stopPropagation(); togglePlay(); }}
+                >
+                  <Play size={30} fill="currentColor" />
+                </button>
+              )}
+
+              <div className="player-controls" onClick={(event) => event.stopPropagation()}>
+                <input
+                  className="player-progress"
+                  aria-label="Seek"
+                  min="0"
+                  max="100"
+                  value={duration ? (currentTime / duration) * 100 : 0}
+                  type="range"
+                  onChange={seek}
+                />
+                <div className="player-control-row">
+                  <div className="player-control-group">
+                    <button type="button" className="player-control-button" onClick={togglePlay} aria-label={isPlaying ? "Pause" : "Play"}>
+                      {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+                    </button>
+                    <span className="player-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
+                  </div>
+                  <div className="player-control-group player-control-actions">
+                    <button type="button" className="player-control-button" onClick={toggleMute} aria-label={volume === 0 ? "Unmute" : "Mute"}>
+                      {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                    </button>
+                    <input
+                      className="player-volume"
+                      type="range"
+                      aria-label="Volume"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={volume}
+                      onChange={changeVolume}
+                    />
+                    <button
+                      type="button"
+                      className={`player-control-button${optionsOpen ? " is-active" : ""}`}
+                      onClick={() => setOptionsOpen((open) => !open)}
+                      aria-label="Playback settings"
+                      aria-expanded={optionsOpen}
+                    >
+                      <Settings size={20} />
+                    </button>
+                    <button type="button" className="player-control-button" onClick={toggleFullscreen} aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+                      {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <input
-                id="slider"
-                ref={slider}
-                min={0}
-                max={100}
-                value={value}
-                step={0.00001}
-                type="range"
-                onChange={() => {
-                  handleClick();
-                }}
-                className=" absolute bottom-16 left-4 right-4 "
-              ></input>
-              {!isPlaying ? (
-                <svg
-                  style={{ position: "absolute", top: "45%", left: "47%" }}
-                  width="50px"
-                  height="50px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      d="M20.4086 9.35258C22.5305 10.5065 22.5305 13.4935 20.4086 14.6474L7.59662 21.6145C5.53435 22.736 3 21.2763 3 18.9671L3 5.0329C3 2.72368 5.53435 1.26402 7.59661 2.38548L20.4086 9.35258Z"
-                      stroke="#ffffff"
-                      stroke-width="1.5"
-                    ></path>
-                  </g>
-                </svg>
-              ) : (
-                <svg
-                  style={{ position: "absolute", top: "45%", left: "47%" }}
-                  width="50px"
-                  height="50px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    {" "}
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M10 5C10 3.34315 8.65686 2 7 2H5C3.34315 2 2 3.34315 2 5V19C2 20.6569 3.34315 22 5 22H7C8.65686 22 10 20.6569 10 19V5ZM8 5C8 4.44772 7.55229 4 7 4H5C4.44772 4 4 4.44772 4 5V19C4 19.5523 4.44772 20 5 20H7C7.55229 20 8 19.5523 8 19V5Z"
-                      fill="#ffffff"
-                    ></path>{" "}
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M22 5C22 3.34315 20.6569 2 19 2H17C15.3431 2 14 3.34315 14 5V19C14 20.6569 15.3431 22 17 22H19C20.6569 22 22 20.6569 22 19V5ZM20 5C20 4.44772 19.5523 4 19 4H17C16.4477 4 16 4.44772 16 5V19C16 19.5523 16.4477 20 17 20H19C19.5523 20 20 19.5523 20 19V5Z"
-                      fill="#ffffff"
-                    ></path>{" "}
-                  </g>
-                </svg>
+              {optionsOpen && (
+                <Options
+                  options={qualityLevels}
+                  audioTracks={audioTracks}
+                  activeAudioTrack={activeAudioTrack}
+                  onSelectAudioTrack={(track, index) => {
+                    dashRef.current?.setCurrentTrack(track);
+                    setActiveAudioTrack(index);
+                  }}
+                  select={dashRef}
+                />
               )}
-              <svg
-                className="absolute bottom-8 right-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  enterFullscreen();
-                }}
-                width="20px"
-                height="20px"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></g>
-                <g id="SVGRepo_iconCarrier">
-                  {" "}
-                  <path
-                    d="M23 4C23 2.34315 21.6569 1 20 1H16C15.4477 1 15 1.44772 15 2C15 2.55228 15.4477 3 16 3H20C20.5523 3 21 3.44772 21 4V8C21 8.55228 21.4477 9 22 9C22.5523 9 23 8.55228 23 8V4Z"
-                    fill="#ffffff"
-                  ></path>{" "}
-                  <path
-                    d="M23 16C23 15.4477 22.5523 15 22 15C21.4477 15 21 15.4477 21 16V20C21 20.5523 20.5523 21 20 21H16C15.4477 21 15 21.4477 15 22C15 22.5523 15.4477 23 16 23H20C21.6569 23 23 21.6569 23 20V16Z"
-                    fill="#ffffff"
-                  ></path>{" "}
-                  <path
-                    d="M4 21H8C8.55228 21 9 21.4477 9 22C9 22.5523 8.55228 23 8 23H4C2.34315 23 1 21.6569 1 20V16C1 15.4477 1.44772 15 2 15C2.55228 15 3 15.4477 3 16V20C3 20.5523 3.44772 21 4 21Z"
-                    fill="#ffffff"
-                  ></path>{" "}
-                  <path
-                    d="M1 8C1 8.55228 1.44772 9 2 9C2.55228 9 3 8.55228 3 8L3 4C3 3.44772 3.44772 3 4 3H8C8.55228 3 9 2.55228 9 2C9 1.44772 8.55228 1 8 1H4C2.34315 1 1 2.34315 1 4V8Z"
-                    fill="#ffffff"
-                  ></path>{" "}
-                </g>
-              </svg>
-              <svg
-                onClick={(e) => {
-                  e.stopPropagation();
-                  option(e);
-                }}
-                className="absolute bottom-8 right-16"
-                width="22px"
-                height="22px"
-                viewBox="0 0 24 24"
-                id="_24x24_On_Light_Settings"
-                data-name="24x24/On Light/Settings"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="#ffffff"
-              >
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></g>
-                <g id="SVGRepo_iconCarrier">
-                  {" "}
-                  <rect
-                    id="view-box"
-                    width="24"
-                    height="24"
-                    fill="#ffffff"
-                    opacity="0"
-                  ></rect>{" "}
-                  <path
-                    id="Shape"
-                    d="M6.995,19.461a10.065,10.065,0,0,1-2.171-.9.756.756,0,0,1-.382-.7l.132-2.067a.151.151,0,0,0-.044-.116l-.707-.708a.149.149,0,0,0-.106-.043h-.01l-2.075.129-.047,0a.75.75,0,0,1-.654-.384,10.071,10.071,0,0,1-.9-2.176.755.755,0,0,1,.226-.766l1.559-1.376a.149.149,0,0,0,.05-.113V9.25a.151.151,0,0,0-.05-.113L.254,7.761a.754.754,0,0,1-.226-.766,10.115,10.115,0,0,1,.9-2.177.75.75,0,0,1,.654-.382h.047l2.075.129h.01a.153.153,0,0,0,.106-.044l.7-.7a.15.15,0,0,0,.043-.116L4.436,1.632a.754.754,0,0,1,.382-.7,10.115,10.115,0,0,1,2.177-.9.751.751,0,0,1,.766.226L9.137,1.813a.151.151,0,0,0,.113.05h.988a.149.149,0,0,0,.113-.05L11.728.254a.751.751,0,0,1,.766-.226,10.071,10.071,0,0,1,2.176.9.753.753,0,0,1,.383.7l-.129,2.075a.151.151,0,0,0,.043.116l.7.7a.155.155,0,0,0,.107.044h.009l2.075-.129H17.9a.752.752,0,0,1,.654.382,10.07,10.07,0,0,1,.9,2.177.753.753,0,0,1-.226.766L17.676,9.137a.152.152,0,0,0-.051.113v.988a.152.152,0,0,0,.051.113l1.559,1.376a.753.753,0,0,1,.226.766,10.026,10.026,0,0,1-.9,2.176.751.751,0,0,1-.654.384l-.047,0-2.075-.129h-.01a.149.149,0,0,0-.106.043l-.7.7a.154.154,0,0,0-.043.116l.129,2.075a.744.744,0,0,1-.383.7,10.011,10.011,0,0,1-2.171.9.746.746,0,0,1-.767-.226l-1.371-1.557a.149.149,0,0,0-.113-.051h-1a.152.152,0,0,0-.113.051L7.761,19.235a.751.751,0,0,1-.766.226ZM4.883,13.907l.708.707a1.649,1.649,0,0,1,.48,1.273l-.1,1.582a8.373,8.373,0,0,0,.988.409l1.055-1.194a1.652,1.652,0,0,1,1.238-.558h1a1.649,1.649,0,0,1,1.238.56l1.049,1.191a8.413,8.413,0,0,0,.989-.41l-.1-1.59a1.653,1.653,0,0,1,.481-1.27l.7-.7a1.664,1.664,0,0,1,1.167-.483l.1,0,1.59.1a8.376,8.376,0,0,0,.412-.994l-1.194-1.055a1.652,1.652,0,0,1-.558-1.238V9.25a1.652,1.652,0,0,1,.558-1.238l1.194-1.055a8.274,8.274,0,0,0-.412-.994l-1.59.1c-.033,0-.068,0-.1,0a1.642,1.642,0,0,1-1.169-.484l-.7-.7a1.65,1.65,0,0,1-.481-1.269l.1-1.59a8.748,8.748,0,0,0-.994-.413l-1.055,1.2a1.652,1.652,0,0,1-1.238.558H9.25a1.652,1.652,0,0,1-1.238-.558L6.958,1.61a8.8,8.8,0,0,0-.994.413l.1,1.59a1.65,1.65,0,0,1-.481,1.269l-.7.7a1.638,1.638,0,0,1-1.168.484c-.033,0-.067,0-.1,0l-1.59-.1a8.748,8.748,0,0,0-.413.994l1.2,1.055A1.652,1.652,0,0,1,3.363,9.25v.988a1.652,1.652,0,0,1-.558,1.238l-1.2,1.055a8.666,8.666,0,0,0,.413.994l1.59-.1.1,0A1.638,1.638,0,0,1,4.883,13.907Zm.106-4.168a4.75,4.75,0,1,1,4.75,4.75A4.756,4.756,0,0,1,4.989,9.739Zm1.5,0a3.25,3.25,0,1,0,3.25-3.25A3.254,3.254,0,0,0,6.489,9.739Z"
-                    transform="translate(2.261 2.261)"
-                    fill="#ffffff"
-                  ></path>{" "}
-                </g>
-              </svg>
-              {options && qualityLevels.length > 0 && select != null ? (
-                <Options options={qualityLevels} select={select} />
-              ) : (
-                <></>
-              )}
-              <input
-                className="  h-[2px] accent-pink-500 absolute bottom-8 left-8 "
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={handleVolumeChange}
-              />
             </motion.div>
-          ) : (
-            <></>
           )}
         </div>
       </div>
-      <div className="w-full text-white text-2xl font-semibold my-3 mx-3">
+      <div className="player-description text-2xl font-semibold my-3 mx-3">
         Ep- {props.info1.title}
       </div>
-      <div className="w-full text-white text-2xl font-semibold my-3 mx-3">
+      <div className="player-description text-base my-3 mx-3">
         {props.info1.description}
       </div>
-      <div className="w-full text-white text-sm  my-3 mx-3">
+      <div className="player-description text-sm my-3 mx-3">
         Release: {props.info1.releaseDate}
-      </div>{" "}
+      </div>
     </div>
   );
-};
+}
 
 export default Player;

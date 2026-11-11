@@ -8,8 +8,8 @@ function MainP() {
   const [path, setPath] = useState(c.state.info1.path);
   const [info1, setInfo1] = useState(c.state.info1);
   return (
-    <div className="w-full h-full flex-row ">
-      <div className="w-full h-1/6 flex">
+    <div className="player-page w-full">
+      <div className="player-row w-full flex">
         <Player path={path} info1={info1}></Player>
         <SideView
           k={c.state.k}

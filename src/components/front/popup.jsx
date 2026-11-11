@@ -34,7 +34,7 @@ function PopUp(props) {
       >
         {results != null ? (
           results.map((i) => {
-            return <NavCard slide={i} g={props.g} assets={props.assets} />;
+            return <NavCard key={i._id} slide={i} g={props.g} assets={props.assets} />;
           })
         ) : (
           <></>

@@ -7,8 +7,8 @@ import Card from "./card";
 function Carousel(props) {
   return (
     <div className="min-w-full py-8 px-28 h-full">
-      <div className="min-w-full flex justify-center">
-        <div className="text-4xl py-2 px-2  my-4 font-g font-black text-white  ">
+      <div className="min-w-full flex justify-start">
+        <div className="carousel-heading py-2 px-2 my-4 font-g text-white">
           {props.name}
         </div>
       </div>

@@ -16,37 +16,39 @@ function Image(props) {
     return list.data;
   }
   return (
-    <div className="w-full h-full">
+    <div className="featured-hero relative w-full h-screen overflow-hidden">
       <img
         src={props.src}
-        className="w-full  h-screen "
+        className="featured-hero-image w-full h-screen"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        alt={props.slide.name || "Featured title"}
         onLoad={() => setLoaded(true)}
         style={{ opacity: loaded ? 1 : 0 }}
       ></img>
 
       {loaded && (
         <>
-          <div
-            className="w-1/3 h-screen bg-gradient-to-r from-bubble2  to-transparent
-         absolute top-0 left-0 "
-          ></div>
-          <div className="w-1/2 h-1/2 absolute bottom-0 left-0">
+          <div className="featured-image-fade absolute inset-0 z-10 pointer-events-none" />
+          <div className="featured-banner-copy absolute bottom-12 left-0 z-30 flex w-1/2 flex-col items-start gap-3 px-16">
             <div
-              className="w-full h-1/3 mx-16 z-10  bg-[auto_120px] bg-no-repeat "
+              className="featured-anime-logo w-full bg-no-repeat bg-left"
               style={{
                 backgroundImage:
                   "url(" +
                   `${import.meta.env.VITE_APP_API_URL}/file?name=` +
                   props.logo +
                   ")",
+                backgroundSize: "auto clamp(150px, 18vw, 220px)",
               }}
             ></div>
-            <div className="text-slate-400 mx-16 font-g z-30 absolute left-0 bottom-52">
+            <div className="featured-banner-genres font-g font-semibold">
               {props.genre.map((i, k) => {
-                return <>{i + "       "}</>;
+                return <span key={`${i}-${k}`}>{i}{k < props.genre.length - 1 ? "   " : ""}</span>;
               })}
             </div>
-            <div className="text-white mx-16 h-1/3 font-g z-30 absolute left-0 bottom-16">
+            <div className="featured-banner-description text-white font-g">
               {props.desc}
             </div>
             <button
@@ -56,15 +58,11 @@ function Image(props) {
                   state: { info1: props.slide, info2: c, assets: props.assets },
                 });
               }}
-              className="w-36 h-8 rounded-sm bg-pink-500 bg-opacity-45 text-lg text-white font-g font-extrabold  absolute left-0 bottom-14 mx-16 z-30"
+              className="w-40 min-h-10 rounded-md bg-pink-500/80 text-base text-white font-g font-extrabold"
             >
               Watch Now
             </button>
           </div>
-          <div
-            className="w-full h-1/2 bg-gradient-to-t from-bubble2  to-transparent
-       absolute bottom-0 right-0 "
-          ></div>
         </>
       )}
       {!loaded && (

@@ -1,15 +1,13 @@
 function Season(props) {
   return (
-    <>
-      <div
-        onClick={() => {
-          props.click(props.id);
-        }}
-        className="text-white font-extrabold font-g px-2 mx-16 rounded-md bg-opacity-40 bg-pink-500  hover:border-b-gray-500  hover:border-b-2"
-      >
-        Season {props.number}
-      </div>
-    </>
+    <button
+      type="button"
+      onClick={() => props.click(props.id)}
+      className={`series-season font-extrabold font-g px-3 py-1 mx-2 rounded-md${props.selected ? " is-selected" : ""}`}
+      aria-pressed={props.selected}
+    >
+      Season {props.number}
+    </button>
   );
 }
 

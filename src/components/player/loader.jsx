@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 const Loader = () => {
   return (
-    <StyledWrapper className="absolute bottom-1/3 right-1/3 z-40">
+    <StyledWrapper className="player-loader absolute inset-0 z-40 grid place-items-center pointer-events-none">
       <div className="loader ">
         <div data-glitch="Loading..." className="glitch font-bunken text-black">
           Loading...

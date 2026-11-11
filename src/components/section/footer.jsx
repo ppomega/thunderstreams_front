@@ -1,6 +1,8 @@
 import Season from "./season.jsx";
 import EpCard from "./epcard.jsx";
 import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { useEffect, useState } from "react";
 function Footer(props) {
@@ -9,18 +11,19 @@ function Footer(props) {
     console.log(props.data);
   }, [props]);
   return (
-    <div className="absolute bottom-5 w-full">
+    <div className="series-episodes absolute bottom-5 w-full">
       {props.data.length != 0 ? (
         <>
-          <div className="w-full h-7  flex justify-start">
-            {" "}
+          <div className="series-season-tabs w-full flex justify-start">
             {props.data ? (
               props.data.map((i, k) => {
                 return (
                   <Season
+                    key={i._id || k}
                     number={i.seasonNumber}
                     data={i}
                     id={k}
+                    selected={selected === k}
                     click={setSelect}
                   />
                 );
@@ -32,10 +35,17 @@ function Footer(props) {
           <Swiper
             key={`swiper-${props.id}`}
             spaceBetween={8}
-            slidesPerView={5}
+            slidesPerView={1.2}
+            breakpoints={{
+              480: { slidesPerView: 2, spaceBetween: 12 },
+              760: { slidesPerView: 3, spaceBetween: 14 },
+              1100: { slidesPerView: 4, spaceBetween: 16 },
+              1400: { slidesPerView: 5, spaceBetween: 18 },
+            }}
             loop={false}
+            navigation
             modules={[Navigation]}
-            className="min-w-full my-3"
+            className="series-episode-swiper min-w-full my-4"
           >
             {props.data[selected].episodes ? (
               props.data[selected].episodes.map((slide, k) => {
@@ -57,8 +67,19 @@ function Footer(props) {
           </Swiper>
         </>
       ) : (
-        <div className="relative bottom-0 left-0 w-full h-1/12 py-7 px-8 animate-pulse">
-          <div className="w-full h-32 bg-pink-900/55 rounded-2xl "></div>
+        <div className="series-episode-loading" role="status" aria-label="Loading episodes">
+          <div className="episode-skeleton-season shimmer-block" />
+          <div className="episode-skeleton-grid" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div className="episode-skeleton-card" key={index}>
+                <div className="episode-skeleton-art shimmer-block" />
+                <div className="episode-skeleton-copy">
+                  <div className="episode-skeleton-title shimmer-block" />
+                  <div className="episode-skeleton-summary shimmer-block" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
