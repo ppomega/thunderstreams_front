@@ -6,7 +6,7 @@ import Card from "./card";
 
 function Carousel(props) {
   return (
-    <div className="min-w-full py-8 px-28 h-full">
+    <section className="carousel-section w-full py-6">
       <div className="min-w-full flex justify-start">
         <div className="carousel-heading py-2 px-2 my-4 font-g text-white">
           {props.name}
@@ -16,7 +16,13 @@ function Carousel(props) {
         <Swiper
           key={`swiper-${props.id}`}
           spaceBetween={8}
-          slidesPerView={4}
+          slidesPerView={1.35}
+          breakpoints={{
+            480: { slidesPerView: 2.1, spaceBetween: 12 },
+            700: { slidesPerView: 3, spaceBetween: 16 },
+            1000: { slidesPerView: 4, spaceBetween: 18 },
+            1400: { slidesPerView: 5, spaceBetween: 20 },
+          }}
           modules={[Navigation]}
           className="w-full"
         >
@@ -31,7 +37,7 @@ function Carousel(props) {
           <div className="w-full h-32 bg-pink-900/55 rounded-2xl "></div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

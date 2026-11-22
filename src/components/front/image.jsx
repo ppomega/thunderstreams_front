@@ -16,10 +16,10 @@ function Image(props) {
     return list.data;
   }
   return (
-    <div className="featured-hero relative w-full h-screen overflow-hidden">
+    <div className="featured-hero relative w-full overflow-hidden">
       <img
         src={props.src}
-        className="featured-hero-image w-full h-screen"
+        className="featured-hero-image w-full h-full"
         loading="eager"
         fetchPriority="high"
         decoding="async"
@@ -31,7 +31,7 @@ function Image(props) {
       {loaded && (
         <>
           <div className="featured-image-fade absolute inset-0 z-10 pointer-events-none" />
-          <div className="featured-banner-copy absolute bottom-12 left-0 z-30 flex w-1/2 flex-col items-start gap-3 px-16">
+          <div className="featured-banner-copy absolute bottom-12 left-0 z-30 flex flex-col items-start gap-3 px-16">
             <div
               className="featured-anime-logo w-full bg-no-repeat bg-left"
               style={{

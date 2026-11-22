@@ -1,35 +1,35 @@
 function Login() {
   return (
-    <>
+    <main className="login-page">
       <video
         src={require("./bg.mp4")}
         loop
         autoPlay
         muted
-        className="min-w-full h-full object-cover"
+        className="login-background"
       ></video>
-      <h1 className="text-white text-2xl absolute top-32  right-2px   font-c">
-        THUNDER STREAMS
-      </h1>
-      <div className="absolute top-1/4 right-3px w-1/4 h-1/2 bg-pink-600 bg-opacity-30 backdrop-blur-md  rounded-2xl ">
-        <h1 className="font-h text-4xl text-white font-extrabold px-36 py-6">
-          Login
+      <div className="login-card">
+        <h1 className="login-brand">
+          THUNDER STREAMS
         </h1>
+        <h2 className="font-h text-4xl text-white font-extrabold">
+          Login
+        </h2>
         <input
-          className=" bg-opacity-50 font-g bg-black text-white rounded-md px-3 mx-10 py-3 w-3/4 "
+          className="login-input font-g bg-black text-white rounded-md px-3 py-3"
           type="text"
           placeholder="Username"
         ></input>
         <input
-          className=" bg-opacity-50 font-g bg-black text-white rounded-md px-3 mx-10 py-3 my-6 w-3/4 "
+          className="login-input font-g bg-black text-white rounded-md px-3 py-3"
           type="text"
           placeholder="Password"
         ></input>
-        <button className="bg-bubb rounded-lg w-1/4 h-10 text-xl font-extrabold font-g text-white mx-32">
+        <button className="login-submit bg-bubb rounded-lg h-10 text-xl font-extrabold font-g text-white">
           Log in
         </button>
       </div>
-    </>
+    </main>
   );
 }
 export default Login;
