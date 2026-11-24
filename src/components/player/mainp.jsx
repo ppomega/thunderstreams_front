@@ -3,22 +3,30 @@ import Footer from "./footer.jsx";
 import SideView from "./sideview.jsx";
 import { useLocation } from "react-router";
 import { useState } from "react";
+
 function MainP() {
   const c = useLocation();
-  const [path, setPath] = useState(c.state.info1.path);
-  const [info1, setInfo1] = useState(c.state.info1);
+  const episodes = c.state.info2 || [];
+  const [index, setIndex] = useState(c.state.k ?? 0);
+  const info1 = episodes[index] || c.state.info1;
+  const nextEpisode = episodes[index + 1] || null;
+
   return (
     <div className="player-page w-full">
       <div className="player-row w-full flex">
-        <Player path={path} info1={info1}></Player>
-        <SideView
-          k={c.state.k}
+        <Player
+          path={info1.path}
           info1={info1}
-          data={c.state.info2}
+          episodeNumber={index + 1}
+          nextEpisode={nextEpisode}
+          onNext={nextEpisode ? () => setIndex(index + 1) : undefined}
+        />
+        <SideView
+          selected={index}
+          data={episodes}
           thumb={c.state.info3}
-          setPath={setPath}
-          setInfo1={setInfo1}
-        ></SideView>
+          onSelect={setIndex}
+        />
       </div>
       <Footer assets={c.state.assets}></Footer>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { Play } from "lucide-react";
 import useVideoThumbnail from "../../hooks/useVideoThumbnail.js";
 
@@ -14,7 +14,12 @@ function EpisodeThumb({ path, fallback }) {
 
 function SideView(props) {
   const imageUrl = `${import.meta.env.VITE_APP_API_URL}/file?name=${props.thumb}`;
-  const [selected, setSelected] = useState(props.k);
+  const selectedRef = useRef(null);
+
+  // Keep the playing episode in view, e.g. after auto-advancing to the next one.
+  useEffect(() => {
+    selectedRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [props.selected]);
 
   return (
     <aside className="episode-sidebar font-g" aria-label="Episodes">
@@ -24,13 +29,10 @@ function SideView(props) {
           <button
             type="button"
             key={episode._id || episode.path || index}
-            className={`episode-item${selected === index ? " is-selected" : ""}`}
-            aria-pressed={selected === index}
-            onClick={() => {
-              props.setPath(episode.path);
-              props.setInfo1(episode);
-              setSelected(index);
-            }}
+            ref={props.selected === index ? selectedRef : undefined}
+            className={`episode-item${props.selected === index ? " is-selected" : ""}`}
+            aria-pressed={props.selected === index}
+            onClick={() => props.onSelect(index)}
           >
             <EpisodeThumb path={episode.path} fallback={imageUrl} />
             <span className="episode-copy">
