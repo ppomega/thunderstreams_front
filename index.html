@@ -4,7 +4,19 @@
     <base href="/" />
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/thunderstreams.svg" />
-    <meta name="theme-color" content="#1b0618" />
+    <meta name="theme-color" content="#0d0a14" />
+    <script>
+      // Apply the theme before first paint so light mode doesn't flash dark.
+      (function () {
+        var theme;
+        try { theme = localStorage.getItem("thunderstreams-theme"); } catch (e) {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Discover and watch your next favorite anime on Thunder Streams." />
     <title>Thunder Streams</title>

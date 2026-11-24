@@ -29,13 +29,13 @@ function Nav(props) {
           id="l"
           onChange={(e) => query(e.target.value)}
           onFocus={() => props.g(true)}
-          className="nav-search h-10 bg-bubb bg-opacity-65 px-4 text-base text-white rounded-lg"
+          className="nav-search h-10 px-4 text-base rounded-lg"
           placeholder="Search titles"
           aria-label="Search titles"
         />
 
         <div className="nav-brand font-o" aria-label="Thunder Streams">
-          <span>Thunder</span><span className="text-yellow-300">Streams</span>
+          <span>Thunder</span><span className="text-brand">Streams</span>
         </div>
         <button type="button" className="nav-link" onClick={() => navigate("/aboutus")}>
           About Us

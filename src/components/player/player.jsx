@@ -454,7 +454,7 @@ function Player(props) {
     <div className="player-frame">
       <div className="player-video-wrap">
         <div
-          className={`player-video-shell relative rounded-md border border-gray-700${controlsShown ? "" : " is-idle"}`}
+          className={`player-video-shell relative rounded-md border border-line${controlsShown ? "" : " is-idle"}`}
           ref={containerRef}
           onPointerMove={showControls}
           onPointerDown={showControls}

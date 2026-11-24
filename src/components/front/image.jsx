@@ -48,7 +48,7 @@ function Image(props) {
                 return <span key={`${i}-${k}`}>{i}{k < props.genre.length - 1 ? "   " : ""}</span>;
               })}
             </div>
-            <div className="featured-banner-description text-white font-g">
+            <div className="featured-banner-description font-g">
               {props.desc}
             </div>
             <button
@@ -58,7 +58,7 @@ function Image(props) {
                   state: { info1: props.slide, info2: c, assets: props.assets },
                 });
               }}
-              className="w-40 min-h-10 rounded-md bg-pink-500/80 text-base text-white font-g font-extrabold"
+              className="w-40 min-h-10 rounded-md btn-primary text-base font-g font-extrabold"
             >
               Watch Now
             </button>
@@ -67,7 +67,7 @@ function Image(props) {
       )}
       {!loaded && (
         <div className="absolute top-0 right-0 animate-pulse w-11/12 h-100 rounded-2xl mx-16">
-          <div className="w-full h-100 bg-pink-900/55 rounded-2xl  bg-opacity-35"></div>
+          <div className="w-full h-100 skeleton rounded-2xl"></div>
         </div>
       )}
     </div>

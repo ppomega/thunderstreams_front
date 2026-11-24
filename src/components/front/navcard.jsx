@@ -33,9 +33,9 @@ function NavCard(props) {
   ${imageUrl}
     )`,
         }}
-        className="w-52 h-36 my-6 bg-cover rounded-lg  hover:border-4 border-pink-500"
+        className="w-52 h-36 my-6 bg-cover rounded-lg search-result-art cursor-pointer"
       ></div>
-      <h1 className=" text-white  text-lg font-semibold">{props.slide.name}</h1>
+      <h1 className="text-fg text-lg font-semibold">{props.slide.name}</h1>
     </div>
   );
 }

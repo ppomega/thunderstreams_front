@@ -25,7 +25,7 @@ function Login() {
           type="text"
           placeholder="Password"
         ></input>
-        <button className="login-submit bg-bubb rounded-lg h-10 text-xl font-extrabold font-g text-white">
+        <button className="login-submit btn-primary rounded-lg h-10 text-xl font-extrabold font-g">
           Log in
         </button>
       </div>

@@ -8,10 +8,9 @@ function PopUp(props) {
   }, [props.results]);
   return (
     <motion.div
-      className="min-w-full h-full bg-black z-30 bg-opacity-45 backdrop-blur-lg fixed top-0 "
+      className="search-overlay min-w-full h-full z-30 fixed top-0"
       style={{
         backdropFilter: "blur(5px)",
-        background: "rgba(0, 0, 0, 0.3)",
         padding: "20px",
         borderRadius: "10px",
       }}
@@ -30,7 +29,7 @@ function PopUp(props) {
           e.stopPropagation();
           props.g(true);
         }}
-        className="w-3/4  text-white bg-pink-700/30 rounded-lg sticky z-40 top-24 left-52 flex justify-around flex-wrap overflow-y-auto"
+        className="w-3/4 search-panel rounded-xl sticky z-40 top-24 left-52 flex justify-around flex-wrap overflow-y-auto"
       >
         {results != null ? (
           results.map((i) => {

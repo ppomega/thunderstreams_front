@@ -37,7 +37,7 @@ function Card(props) {
       ></img>
       {!loaded && (
         <div className="absolute inset-0 animate-pulse rounded-2xl">
-          <div className="bg-pink-700/35 w-full h-full rounded-2xl"></div>
+          <div className="skeleton w-full h-full rounded-2xl"></div>
         </div>
       )}
       {v ? (

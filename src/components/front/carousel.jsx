@@ -8,7 +8,7 @@ function Carousel(props) {
   return (
     <section className="carousel-section w-full py-6">
       <div className="min-w-full flex justify-start">
-        <div className="carousel-heading py-2 px-2 my-4 font-g text-white">
+        <div className="carousel-heading py-2 px-2 my-4 font-g text-fg">
           {props.name}
         </div>
       </div>
@@ -34,7 +34,7 @@ function Carousel(props) {
         </Swiper>
       ) : (
         <div className="w-full h-1/12 py-7 px-8 animate-pulse">
-          <div className="w-full h-32 bg-pink-900/55 rounded-2xl "></div>
+          <div className="w-full h-32 skeleton rounded-2xl "></div>
         </div>
       )}
     </section>

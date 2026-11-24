@@ -9,7 +9,7 @@ function Home(props) {
         <Slider data={props.assets} />
       ) : (
         <div className="w-full h-100 animate-pulse px-4">
-          <div className="w-full h-100 bg-pink-900/55 rounded-2xl "></div>
+          <div className="w-full h-100 skeleton rounded-2xl "></div>
         </div>
       )}
       {props.assets.length !== 0 ? (
@@ -21,13 +21,13 @@ function Home(props) {
       ) : (
         <>
           <div className="w-full h-1/12 py-7 px-8 animate-pulse">
-            <div className="w-full h-32 bg-pink-900/55 rounded-2xl "></div>
+            <div className="w-full h-32 skeleton rounded-2xl "></div>
           </div>
           <div className="w-full h-1/12 py-7 px-8 animate-pulse">
-            <div className="w-full h-32 bg-pink-900/55 rounded-2xl "></div>
+            <div className="w-full h-32 skeleton rounded-2xl "></div>
           </div>{" "}
           <div className="w-full h-1/12 py-7 px-8 animate-pulse">
-            <div className="w-full h-32 bg-pink-900/55 rounded-2xl "></div>
+            <div className="w-full h-32 skeleton rounded-2xl "></div>
           </div>
         </>
       )}

@@ -25,12 +25,19 @@ function App() {
   }, []);
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem("thunderstreams-theme") === "light" ? "light" : "dark";
-    } catch {
-      return "dark";
-    }
+      const saved = localStorage.getItem("thunderstreams-theme");
+      if (saved === "light" || saved === "dark") return saved;
+    } catch { /* storage may be unavailable */ }
+    // No saved choice yet: follow the OS setting.
+    return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
   });
   const toggleTheme = useCallback(() => {
+    const root = document.documentElement;
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!reduceMotion) {
+      root.classList.add("theme-transition");
+      window.setTimeout(() => root.classList.remove("theme-transition"), 260);
+    }
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
       try { localStorage.setItem("thunderstreams-theme", next); } catch { /* storage may be unavailable */ }
@@ -38,8 +45,11 @@ function App() {
     });
   }, []);
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    const pageBg = getComputedStyle(root).getPropertyValue("--page-bg").trim();
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", pageBg || "#0d0a14");
   }, [theme]);
   const [r, setR] = useState(false);
   const [results, setResults] = useState([]);
