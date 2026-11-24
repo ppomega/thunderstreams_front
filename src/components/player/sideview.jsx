@@ -1,5 +1,16 @@
 import { useState } from "react";
 import { Play } from "lucide-react";
+import useVideoThumbnail from "../../hooks/useVideoThumbnail.js";
+
+function EpisodeThumb({ path, fallback }) {
+  const [ref, videoThumb] = useVideoThumbnail(path);
+  return (
+    <span className="episode-thumb" ref={ref}>
+      <img src={videoThumb || fallback} alt="" loading="lazy" decoding="async" />
+      <span className="episode-play"><Play size={19} fill="currentColor" /></span>
+    </span>
+  );
+}
 
 function SideView(props) {
   const imageUrl = `${import.meta.env.VITE_APP_API_URL}/file?name=${props.thumb}`;
@@ -21,10 +32,7 @@ function SideView(props) {
               setSelected(index);
             }}
           >
-            <span className="episode-thumb">
-              <img src={imageUrl} alt="" loading="lazy" decoding="async" />
-              <span className="episode-play"><Play size={19} fill="currentColor" /></span>
-            </span>
+            <EpisodeThumb path={episode.path} fallback={imageUrl} />
             <span className="episode-copy">
               <span className="episode-title">{episode.title || `Episode ${index + 1}`}</span>
               <span className="episode-description">{episode.description}</span>

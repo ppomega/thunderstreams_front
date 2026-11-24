@@ -1,5 +1,6 @@
 import { Play } from "lucide-react";
 import { useNavigate } from "react-router";
+import useVideoThumbnail from "../../hooks/useVideoThumbnail.js";
 
 function EpCard(props) {
   const navigate = useNavigate();
@@ -7,6 +8,7 @@ function EpCard(props) {
   const imageUrl = thumbnail?.startsWith("http")
     ? thumbnail
     : `${import.meta.env.VITE_APP_API_URL}/file?name=${thumbnail}`;
+  const [artRef, videoThumb] = useVideoThumbnail(props.slide.path);
 
   return (
     <button
@@ -23,8 +25,8 @@ function EpCard(props) {
       })}
       aria-label={`Play episode ${props.k + 1}: ${props.slide.title}`}
     >
-      <span className="series-episode-art">
-        <img src={imageUrl} alt="" loading="lazy" decoding="async" />
+      <span className="series-episode-art" ref={artRef}>
+        <img src={videoThumb || imageUrl} alt="" loading="lazy" decoding="async" />
         <span className="series-episode-art-shade" />
         <span className="series-episode-number">EP {String(props.k + 1).padStart(2, "0")}</span>
         <span className="series-episode-play"><Play size={22} fill="currentColor" /></span>
